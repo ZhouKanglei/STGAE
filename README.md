@@ -7,7 +7,7 @@ Spatial Temporal Graph Auto-encoder...
 
 # Experiments
 
-![](./ouput/plots/predict_Uniform/9/single/9_tremor_result.gif)
+![](output/plots/predict_Uniform/9/9-tremor_result.gif)
 
 
 
