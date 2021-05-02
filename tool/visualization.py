@@ -9,10 +9,11 @@ plt.rcParams['text.usetex'] = True
 
 from mpl_toolkits.axes_grid1 import host_subplot
 from matplotlib.animation import FFMpegWriter
-from config.config import log
 
 from sklearn.metrics import mean_squared_error
 from data.NYU.nyu import show_joint_skeleton, jnt_color
+from config.config import log
+
 
 ############################################################
 # Visualization tool funcs

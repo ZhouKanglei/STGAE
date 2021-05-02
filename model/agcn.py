@@ -1,5 +1,6 @@
 # The based unit of adaptive graph convolution networks.
 import tensorflow as tf
+import numpy as np
 
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv2D, Reshape, Input, Softmax, Lambda
@@ -67,7 +68,7 @@ class agcn(Model):
         # Q, K self-attention
         self.conv_q = []
         self.conv_k = []
-        if ATTENTION == 'A+B+C':
+        if ATTENTION == 'A+B+C' or ATTENTION == 'A+C' or ATTENTION == 'B+C':
             for i in range(self.K):
                 self.conv_q.append(Conv2D(filters=self.inter_filters,
                                           kernel_size=(1, 1),
@@ -118,7 +119,7 @@ class agcn(Model):
             A_1 = tf.reshape(tf.transpose(self.conv_q[i](x), perm=[0, 2, 1, 3]), [-1, V, T * self.inter_filters])
             A_2 = tf.reshape(tf.transpose(self.conv_k[i](x), perm=[0, 1, 3, 2]), [-1, T * self.inter_filters, V])
 
-            A.append(self.A[i] + self.softmax(tf.matmul(A_1, A_2) / A_1.shape[-1])) # N V V
+            A.append(self.A[i] + self.softmax(tf.matmul(A_1, A_2) / np.sqrt(A_1.shape[-1])))  # N V V
 
         y = tf.einsum('ntvkc, knvw->ntwc', h, tf.convert_to_tensor(A))
 

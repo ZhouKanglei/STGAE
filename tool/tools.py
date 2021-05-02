@@ -5,8 +5,9 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import plot_model
 
 from config.config import *
-from Tool.visualization import *
-from Tool.metrics import *
+from tool.visualization import *
+from tool.metrics import *
+
 
 ###################################################################
 # Path verification
@@ -20,6 +21,30 @@ def path_verification(path):
         if os.path.isfile(path):
             log.logger.error('File %s is not existing...' % path)
             assert os.path.isfile(path) == True
+
+path_verification(OUTPUT_LOGGER_PATH)
+path_verification(OUTPUT_LOG_PATH)
+path_verification(OUTPUT_HISTORY_PATH)
+path_verification(FIG_PATH)
+
+###################################################################
+# Delete logger file
+###################################################################
+def delete_file_logger(src):
+    '''delete files and folders'''
+    log.logger.debug('...')
+    for root, dirs, files in os.walk(src):
+        for name in files:
+            if name.endswith('.log') and os.stat(os.path.join(root, name)).st_size == 0:
+                os.remove(os.path.join(root, name))
+                log.logger.info("Delete empty logger file: " + os.path.join(root, name))
+            else:
+                with open(os.path.join(root, name), 'r', encoding='utf-8') as f:
+                    if 'pose error' not in f.read() and TIME_START not in name:
+                        os.remove(os.path.join(root, name))
+
+        for dir in dirs:
+            delete_file_logger(os.path.join(root, dir))
 
 ###################################################################
 # Delete history log every time before processing
@@ -38,6 +63,41 @@ def delete_file_folder(src):
         for dir in dirs:
             shutil.rmtree(os.path.join(root, dir), True)
             log.logger.info("Delete Dir: " + os.path.join(root, dir))
+
+delete_file_folder(OUTPUT_LOG_PATH)
+
+###################################################################
+# Delete temp model
+###################################################################
+def delete_temp_model(src):
+    '''delete files and folders'''
+    for root, dirs, files in os.walk(src):
+        for name in files:
+            if 'temp' in name:
+                os.remove(os.path.join(root, name))
+                log.logger.info("Delete temp model: " + os.path.join(root, name))
+
+        for dir in dirs:
+            delete_file_logger(os.path.join(root, dir))
+
+delete_temp_model(MODEL_PATH)
+
+###################################################################
+# Delete old history
+###################################################################
+def delete_old_history(src):
+    '''delete files and folders'''
+    for root, dirs, files in os.walk(src):
+        for name in files:
+            if time.strftime("history-%Y_%m_%d-", time.localtime()) not in name:
+                os.remove(os.path.join(root, name))
+                log.logger.info("Delete old history: " + os.path.join(root, name))
+
+        for dir in dirs:
+            delete_file_logger(os.path.join(root, dir))
+
+delete_old_history(OUTPUT_HISTORY_PATH)
+
 
 ###################################################################
 # Load NYU tremor data (only translation).
@@ -200,7 +260,7 @@ def search_acceptable_model(model, x_test, y_test):
 
         pbar.set_description('Loss %d: %.4f' % (i, loss))
 
-        if loss < 1:
+        if loss < ACCEPTENCE_LOSS:
             pbar.close()
             break
 
@@ -264,7 +324,9 @@ def deal_learnable_adj(A, fig_path):
         plot_adj(adj=A_, fig_path=fig_path, num=A_num + 1)
 
     # only using the top 30 joints of NYU hand model
-    A_ = A[0, :30, :30] + A[1, :30, :30] + A[2, :30, :30]
+    A_ = np.zeros(shape=(30, 30))
+    for A_num in range(A.shape[0]):
+        A_ = A_ + A[A_num, :30, :30]
     plot_adj(adj=A_, fig_path=fig_path, num=0)
 
 # Optimal model dealing
@@ -299,6 +361,19 @@ def deal_opt(model, model_path, opt_model, x_test, y_test, search_opt, loss):
             os.remove(model_path)
             log.logger.info('Delete the test model %s' % model_path)
 
+def save_loss(mse_pose, mse_bone_len_direct, mse_bone_len_indirect):
+
+    with open(BEST_RES_LOSS_PATH, 'a', encoding='utf-8') as f:
+        f.write('%s\t%s\t%s\t%s\t%.4f\t%.4f\t%.4f\n' %
+                (TIME_START, NOISE, STRATEGY, ATTENTION,
+                 mse_pose, mse_bone_len_direct, mse_bone_len_indirect))
+
+        log.logger.info('%s\t%s\t%s\t%s\t%.4f\t%.4f\t%.4f' %
+                (TIME_START, NOISE, STRATEGY, ATTENTION,
+                 mse_pose, mse_bone_len_direct, mse_bone_len_indirect))
+
+        f.close()
+
 def deal_test_phase(model, model_path, opt_model, x_test, y_test, y_test_hat, search_opt, loss):
     # deal opt searching
     deal_opt(model, model_path, opt_model, x_test, y_test, search_opt, loss)
@@ -308,12 +383,15 @@ def deal_test_phase(model, model_path, opt_model, x_test, y_test, y_test_hat, se
     log.logger.info('Hand pose error: %f' % mse_pose)
 
     # bone length evaluation
-    mse_bone_len = caculate_all_bone_length_error(y_test, y_test_hat)
-    log.logger.info('Bone length error: %f' % mse_bone_len)
+    mse_bone_len_direct = caculate_all_bone_length_error(y_test, y_test_hat)
+    log.logger.info('Bone length error: %f' % mse_bone_len_direct)
 
     # Symmetrical neighbor length evaluation
-    mse_bone_len = caculate_all_bone_length_error(y_test, y_test_hat, edge='indirect')
-    log.logger.info('Symmetrical neighbor error: %f' % mse_bone_len)
+    mse_bone_len_indirect = caculate_all_bone_length_error(y_test, y_test_hat, edge='indirect')
+    log.logger.info('Symmetrical neighbor error: %f' % mse_bone_len_indirect)
+
+    # save loss
+    save_loss(mse_pose, mse_bone_len_direct, mse_bone_len_indirect)
 
     # plot model
     fig_path = FIG_PATH
@@ -326,10 +404,15 @@ def deal_test_phase(model, model_path, opt_model, x_test, y_test, y_test_hat, se
     if ATTENTION == 'A_M':
         A = model.trainable_weights[6]
         deal_learnable_adj(A, fig_path)
+    else:
+        A = model.A
+        deal_learnable_adj(A, fig_path)
 
     # plot result
     plot_hat(model, x_test=x_test, y_test=y_test,
              y_test_hat=y_test_hat, fig_path=fig_path)
+
+
 
 if __name__ == '__main__':
     plot_history('./output/history/training_history-2021_03_29-20_33_08.csv')

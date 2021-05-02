@@ -2,18 +2,13 @@
 Spatial Temporal Graph Auto-encoder...
 
 
+
 # TODO
-- Exps
+- Denoising results
 
-# Experiments
+![Demo](https://cdn.jsdelivr.net/gh/ZhouKanglei/jidianxia/2021-4-22/1619059824391-9-tremor_result.gif)
 
-![](output/plots/predict_Uniform/9/9-tremor_result.gif)
+- Ablation studies
+- Comparions
 
 
-
-# Enviroment
-
-- Python 3.7
-- Tensorflow 2.3.0
-- CUDA 10.1
-- GPU GeForce RTX 2080

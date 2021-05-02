@@ -61,12 +61,12 @@ class stgcn(Model):
         self.layer_no = layer_no
 
         # C-B-A: gcn sub-block
-        if ATTENTION == 'A+B+C':
+        if ATTENTION == 'A+B+C' or ATTENTION == 'A+C'  or ATTENTION == 'B+C':
             self.gcn = agcn(filters=filters,
                            t_kernel_size=kernel_size[1],
                            layer_no=layer_no,
                            A=self.A)
-        elif ATTENTION == 'A+M' or ATTENTION == 'A':
+        elif ATTENTION == 'A+B' or ATTENTION == 'A':
             self.gcn = gcn(filters=filters,
                             t_kernel_size=kernel_size[1],
                             layer_no=layer_no,
