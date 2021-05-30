@@ -97,12 +97,12 @@ def plot_save_video(x_test, y_test, y_test_hat, fig_path, opt_idx, video_name):
             show_joint_skeleton(ax=ax_1, jnt_xyz=y_test[opt_idx, t, :, :], jnt_color=jnt_color, alpha=0.25)
 
             ax_1.set_title(
-                'Input (MSE = %.4f)' % (mean_squared_error(x_test[opt_idx, t, :, :], y_test[opt_idx, t, :, :])))
+                'Input ($\mathrm{MSE_{pose}}$ = %.4f)' % (mean_squared_error(x_test[opt_idx, t, :, :], y_test[opt_idx, t, :, :])))
 
             show_joint_skeleton(ax=ax_2, jnt_xyz=y_test_hat[opt_idx, t, :, :], jnt_color=jnt_color)
             show_joint_skeleton(ax=ax_2, jnt_xyz=y_test[opt_idx, t, :, :], jnt_color=jnt_color, alpha=0.25)
             ax_2.set_title(
-                'Output (MSE = %.4f)' % (mean_squared_error(y_test_hat[opt_idx, t, :, :], y_test[opt_idx, t, :, :])))
+                'Output ($\mathrm{MSE_{pose}}$ = %.4f)' % (mean_squared_error(y_test_hat[opt_idx, t, :, :], y_test[opt_idx, t, :, :])))
 
             show_joint_skeleton(ax=ax_3, jnt_xyz=y_test[opt_idx, t, :, :], jnt_color=jnt_color)
             ax_3.set_title('Ground truth')
@@ -132,7 +132,7 @@ def plot_save_video(x_test, y_test, y_test_hat, fig_path, opt_idx, video_name):
         show_joint_skeleton(ax=ax_1, jnt_xyz=y_test[opt_idx, t, :, :], jnt_color=jnt_color, alpha=0.25)
 
         ax_1.set_title(
-            'Input (MSE = %.4f)' % (mean_squared_error(x_test[opt_idx, t, :, :], y_test[opt_idx, t, :, :])))
+            'Input ($\mathrm{MSE_{pose}}$ = %.4f)' % (mean_squared_error(x_test[opt_idx, t, :, :], y_test[opt_idx, t, :, :])))
 
         fig_name = os.path.join(fig_path, '%d-%d-input.pdf' % (opt_idx, t))
         fig.savefig(fig_name, transparent=True, bbox_inches='tight')
@@ -147,7 +147,7 @@ def plot_save_video(x_test, y_test, y_test_hat, fig_path, opt_idx, video_name):
         show_joint_skeleton(ax=ax_2, jnt_xyz=y_test_hat[opt_idx, t, :, :], jnt_color=jnt_color)
         show_joint_skeleton(ax=ax_2, jnt_xyz=y_test[opt_idx, t, :, :], jnt_color=jnt_color, alpha=0.25)
         ax_2.set_title(
-            'Output (MSE = %.4f)' % (
+            'Output ($\mathrm{MSE_{pose}}$ = %.4f)' % (
                 mean_squared_error(y_test_hat[opt_idx, t, :, :], y_test[opt_idx, t, :, :])))
 
         fig_name = os.path.join(fig_path, '%d-%d-predict.pdf' % (opt_idx, t))
@@ -351,7 +351,7 @@ def plot_mse_error(x_test, y_test, y_test_hat, fig_path, opt_idx):
 
     ax.set_xlabel('Frame No.')
     ax.set_ylabel('MSE')
-    ax.set_title('MSE curve')
+    ax.set_title('$\mathrm{MSE_{pose}}$ curve')
 
     ax.legend()
 

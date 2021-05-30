@@ -1,9 +1,10 @@
-from Tool.tools import *
-from model.model import STGAE
+from tool.tools import *
+from model.stgae import STGAE
 
 def train(log_dir=OUTPUT_LOG_PATH, t_size=T_SIZE,
           validation_rate=VALIDATION_RATE,
           sample_interval=50, start_pos=0):
+
     # get nyu data
     x_train, y_train, x_valid, y_valid = load_train_data(t_size=t_size,
                                                        validation_rate=validation_rate,
@@ -26,7 +27,7 @@ def train(log_dir=OUTPUT_LOG_PATH, t_size=T_SIZE,
     # compile
     sgd = tf.keras.optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
     adam = tf.keras.optimizers.Adam(lr=0.001)
-    model.compile(optimizer=adam, loss='mse')
+    model.compile(optimizer='adam', loss='mse')
 
     # callbacks
     EarlyStop = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
@@ -102,7 +103,7 @@ def main():
     search_opt = True  # select the optimal model as the pre-trained model
 
     # train or test
-    option = True
+    option = OPTION
     if option == True:
         # delete the existing training log before training
         log_dir = OUTPUT_LOG_PATH
@@ -118,8 +119,8 @@ def main():
 
     else:
         # test
-        test_model_path = 'output/weight/best_weights-Uniform-spatial-A+M.h5'  # test model path
-        test(model_path=test_model_path, t_size=t_size)
+        test_model_path = OPT_MODEL_PATH  # test model path
+        test(model_path=test_model_path, t_size=t_size, search_opt=search_opt)
 
 if __name__ == '__main__':
     main()
