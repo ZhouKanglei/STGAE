@@ -1,5 +1,5 @@
 # STGAE
-Spatial Temporal Graph Auto-encoder...
+[ISMAR 2021] Spatial Temporal Graph Auto-encoder for hand motion denoising
 
 
 
