@@ -12,26 +12,21 @@ Hand object interaction in mixed reality (MR) relies on the accurate tracking an
 
 ![Demo](https://cdn.jsdelivr.net/gh/ZhouKanglei/jidianxia/2021-4-22/1619059824391-9-tremor_result.gif)
 
-- Ablation studies
-- Comparions
+# Environments
 
-
-
-# Enviroment
-
-- LaTeX tool
+- `LaTeX` tool
 
 ```bash
 sudo apt-get install texlive-full
 ```
 
-- FFmpeg
+- `FFmpeg`
 
 ```bash
 sudo apt-get install ffmpeg
 ```
 
-- pydot & graphviz
+- `pydot & graphviz`
 ```bash
 sudo pip3 install pydot
 sudo pip3 install graphviz
