@@ -55,4 +55,4 @@ sudo pip3 install graphviz
 
 ## Contact
 
-Feel free to contact me at `zhoukanglei@qq.com`.
+Feel free to contact me via `zhoukanglei[at]qq.com`.
